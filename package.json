@@ -1,0 +1,22 @@
+{
+  "name": "offtrack.dev",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "astro"
+  ],
+  "author": "bholmesdev",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3",
+    "@types/node": "^22.1.0"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}
