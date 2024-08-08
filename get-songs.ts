@@ -2,23 +2,31 @@ import { z } from "zod";
 import { readFile } from "node:fs/promises";
 
 async function main() {
-	const url = new URL("https://itunes.apple.com/search");
-	url.searchParams.set("term", "Image by Magdalena Bay");
-	url.searchParams.set("media", "music");
-	url.searchParams.set("entity", "musicTrack");
-	url.searchParams.set("limit", "1");
+	const text = await readFile("songs.txt", "utf-8");
 
-	const res = await fetch(url, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
+	const tracks = text.split("\n---\n");
 
-	const data = await res.json();
-	const topResult = sampleValidator.parse(data).results[0];
+	for (const track of tracks) {
+		const [title, artist, description] = track.trim().split(/\n+/);
 
-	console.log(JSON.stringify(topResult, null, 2));
+		const url = new URL("https://itunes.apple.com/search");
+		url.searchParams.set("term", `${title} by ${artist}`);
+		url.searchParams.set("media", "music");
+		url.searchParams.set("entity", "musicTrack");
+		url.searchParams.set("limit", "1");
+
+		const res = await fetch(url, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		const data = await res.json();
+		const topResult = sampleValidator.parse(data).results[0];
+
+		console.log(JSON.stringify(topResult, null, 2));
+	}
 }
 
 main();
