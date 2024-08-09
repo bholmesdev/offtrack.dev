@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 
 type Track = {
 	title: string;
@@ -52,7 +52,11 @@ async function main() {
 		});
 	}
 
-	await writeFile("songs.generated.json", JSON.stringify(tracks, null, 2));
+	const dotAstroDir = new URL(".astro/", import.meta.url);
+	await mkdir(dotAstroDir, { recursive: true });
+
+	const outputFile = new URL("songs.generated.json", dotAstroDir);
+	await writeFile(outputFile, JSON.stringify(tracks, null, 2));
 }
 
 main();
