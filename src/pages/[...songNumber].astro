@@ -2,6 +2,7 @@
 import songs from "../../.astro/songs.generated.json";
 
 import type { GetStaticPaths } from "astro";
+
 export const getStaticPaths = (() => {
   return songs.map((song, idx) => ({
     params: {
@@ -14,6 +15,11 @@ export const getStaticPaths = (() => {
 type Props = (typeof songs)[0];
 
 const song = Astro.props;
+
+// Song numbers are 1-indexed. You've been warned.
+const songNumber = Number(Astro.params.songNumber);
+const nextUrl = songNumber < songs.length ? `/${songNumber + 1}` : null;
+const previousUrl = songNumber > 1 ? `/${songNumber - 1}` : null;
 ---
 
 <!doctype html>
@@ -24,10 +30,47 @@ const song = Astro.props;
     <title>{song.title}</title>
   </head>
   <body>
-    <hgroup>
-      <h1>{song.title}</h1>
-      <h2>{song.artist}</h2>
-    </hgroup>
-    {song.descriptionParagraphs.map((p) => <p>{p}</p>)}
+    <RootElement data={{ audioPreviewUrl: song.audioPreviewUrl }}>
+      <nav class="flex gap-2">
+        {previousUrl && <a href={previousUrl}>Previous</a>}
+        <span>{songNumber} / {songs.length}</span>
+        {nextUrl && <a href={nextUrl}>Next</a>}
+      </nav>
+      <hgroup>
+        <h1>{song.title}</h1>
+        <h2>{song.artist}</h2>
+      </hgroup>
+      {song.descriptionParagraphs.map((p) => <p>{p}</p>)}
+
+      <button data-target="play">Play/pause</button>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value="0"
+        data-target="volume-slider"
+      />
+
+      <img src={song.artworkUrl} alt={song.title} />
+    </RootElement>
   </body>
 </html>
+
+<script>
+  RootElement.ready(($, ctx) => {
+    const audio = new Audio(ctx.data.audioPreviewUrl);
+
+    $("play").addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        console.log("pause");
+        audio.pause();
+      }
+    });
+
+    $("volume-slider").addEventListener("input", (e) => {
+      audio.volume = Number((e.target as HTMLInputElement).value) / 100;
+    });
+  });
+</script>
