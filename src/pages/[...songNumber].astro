@@ -1,0 +1,33 @@
+---
+import songs from "../../.astro/songs.generated.json";
+
+import type { GetStaticPaths } from "astro";
+export const getStaticPaths = (() => {
+  return songs.map((song, idx) => ({
+    params: {
+      songNumber: idx + 1,
+    },
+    props: song,
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = (typeof songs)[0];
+
+const song = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{song.title}</title>
+  </head>
+  <body>
+    <hgroup>
+      <h1>{song.title}</h1>
+      <h2>{song.artist}</h2>
+    </hgroup>
+    {song.descriptionParagraphs.map((p) => <p>{p}</p>)}
+  </body>
+</html>
