@@ -8,6 +8,10 @@ async function main() {
 
 	for (const track of tracks) {
 		const [title, artist, description] = track.trim().split(/\n+/);
+		if (!title || !artist || !description) {
+			console.warn("Invalid track:", track.trim());
+			continue;
+		}
 
 		const url = new URL("https://itunes.apple.com/search");
 		url.searchParams.set("term", `${title} by ${artist}`);
