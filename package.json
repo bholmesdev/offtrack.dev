@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "get-songs": "node --loader tsm get-songs.ts"
+  },
   "keywords": [
     "astro"
   ],
@@ -11,10 +13,8 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
-    "@types/node": "^22.1.0"
-  },
-  "engines": {
-    "node": ">=22.6.0"
+    "@types/node": "^22.1.0",
+    "tsm": "^2.3.0"
   },
   "dependencies": {
     "zod": "^3.23.8"
