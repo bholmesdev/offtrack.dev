@@ -1,4 +1,4 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": ["src", "get-songs.ts"]
+  "include": ["src", "get-songs.ts", "astro.config.mjs"]
 }
