@@ -7,8 +7,8 @@ async function main() {
 	const tracks = text.split("\n---\n");
 
 	for (const track of tracks) {
-		const [title, artist, description] = track.trim().split(/\n+/);
-		if (!title || !artist || !description) {
+		const [title, artist, ...descriptionParagraphs] = track.trim().split(/\n+/);
+		if (!title || !artist) {
 			console.warn("Invalid track:", track.trim());
 			continue;
 		}
