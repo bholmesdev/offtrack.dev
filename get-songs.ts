@@ -1,15 +1,25 @@
 import { z } from "zod";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
+
+type Track = {
+	title: string;
+	artist: string;
+	descriptionParagraphs: string[];
+	artworkUrl: string;
+	trackViewUrl: string;
+	audioPreviewUrl: string;
+};
 
 async function main() {
 	const text = await readFile("songs.txt", "utf-8");
 
-	const tracks = text.split("\n---\n");
+	const trackTextBlocks = text.split("\n---\n");
+	const tracks: Track[] = [];
 
-	for (const track of tracks) {
-		const [title, artist, ...descriptionParagraphs] = track.trim().split(/\n+/);
+	for (const block of trackTextBlocks) {
+		const [title, artist, ...descriptionParagraphs] = block.trim().split(/\n+/);
 		if (!title || !artist) {
-			console.warn("Invalid track:", track.trim());
+			console.warn("Invalid track:", block.trim());
 			continue;
 		}
 
@@ -29,8 +39,20 @@ async function main() {
 		const data = await res.json();
 		const topResult = sampleValidator.parse(data).results[0];
 
-		console.log(JSON.stringify(topResult, null, 2));
+		tracks.push({
+			title: topResult.trackCensoredName,
+			artist: topResult.artistName,
+			descriptionParagraphs,
+			trackViewUrl: topResult.trackViewUrl,
+			artworkUrl: topResult.artworkUrl100.replace(
+				/100x100bb\.jpg$/,
+				"1080x1080bb.jpg",
+			),
+			audioPreviewUrl: topResult.previewUrl,
+		});
 	}
+
+	await writeFile("songs.generated.json", JSON.stringify(tracks, null, 2));
 }
 
 main();
@@ -74,9 +96,13 @@ const sampleValidator = z.object({
 			artistViewUrl: z.string().url(),
 			trackViewUrl: z.string().url(),
 			previewUrl: z.string().url(),
-			artworkUrl30: z.string().url(),
-			artworkUrl60: z.string().url(),
-			artworkUrl100: z.string().url(),
+			artworkUrl100: z
+				.string()
+				.url()
+				.refine(
+					(url) => url.endsWith("/100x100bb.jpg"),
+					'Url must end with "/100x100bb.jpg"',
+				),
 			releaseDate: z.coerce.date(),
 			primaryGenreName: z.string(),
 		}),
